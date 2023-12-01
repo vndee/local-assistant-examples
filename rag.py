@@ -6,6 +6,7 @@ from langchain.schema.output_parser import StrOutputParser
 from langchain.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema.runnable import RunnablePassthrough
+from langchain.prompts import PromptTemplate
 from langchain.vectorstores.utils import filter_complex_metadata
 
 
@@ -17,7 +18,16 @@ class ChatPDF:
     def __init__(self):
         self.model = ChatOllama(model="mistral")
         self.text_splitter = RecursiveCharacterTextSplitter(chunk_size=1024, chunk_overlap=100)
-        self.prompt = hub.pull("rlm/rag-prompt-mistral")
+        self.prompt = PromptTemplate.from_template(
+            """
+            <s> [INST] You are an assistant for question-answering tasks. Use the following pieces of retrieved context 
+            to answer the question. If you don't know the answer, just say that you don't know. Use three sentences
+             maximum and keep the answer concise. [/INST] </s> 
+            [INST] Question: {question} 
+            Context: {context} 
+            Answer: [/INST]
+            """
+        )
 
     def ingest(self, pdf_file_path: str):
         docs = PyPDFLoader(file_path=pdf_file_path).load()
