@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "local-rag-example"
+version = "0.1.0"
+description = ""
+authors = ["Duy Huynh <vndee.huynh@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.9.7 || >3.9.7,<3.12"
+langchain = "^0.0.343"
+streamlit-chat = "^0.1.1"
+pypdf = "^3.17.1"
+fastembed = "^0.1.1"
+openai = "^1.3.6"
+langchainhub = "^0.1.14"
+chromadb = "^0.4.18"
+streamlit = "^1.29.0"
+watchdog = "^3.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
