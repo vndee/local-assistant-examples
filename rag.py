@@ -1,4 +1,3 @@
-from langchain import hub
 from langchain.vectorstores import Chroma
 from langchain.chat_models import ChatOllama
 from langchain.embeddings import FastEmbedEmbeddings
