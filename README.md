@@ -69,11 +69,12 @@ The ```ask``` method handles user queries. Users can pose a question, and then t
 With the user's question and the retrieved contexts, we can compose a prompt and request a prediction from the LLM server.
 
 
-```from langchain.vectorstores import Chroma
-from langchain.chat_models import ChatOllama
-from langchain.embeddings import FastEmbedEmbeddings
+```python
+from langchain_community.vectorstores import Chroma
+from langchain_community.chat_models import ChatOllama
+from langchain_community.embeddings import FastEmbedEmbeddings
 from langchain.schema.output_parser import StrOutputParser
-from langchain.document_loaders import PyPDFLoader
+from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema.runnable import RunnablePassthrough
 from langchain.prompts import PromptTemplate
@@ -90,9 +91,9 @@ class ChatPDF:
         self.text_splitter = RecursiveCharacterTextSplitter(chunk_size=1024, chunk_overlap=100)
         self.prompt = PromptTemplate.from_template(
             """
-            <s> [INST] You are an assistant for question-answering tasks. Use the following pieces of retrieved context 
-            to answer the question. If you don't know the answer, just say that you don't know. Use three sentences
-             maximum and keep the answer concise. [/INST] </s> 
+            <s> [INST] Vous êtes un assistant pour les tâches de réponse aux questions. Utilisez les éléments de contexte suivants pour répondre à la question. 
+            Si vous ne connaissez pas la réponse, dites simplement que vous ne savez pas.. Utilisez trois phrases
+             maximum et soyez concis dans votre réponse. [/INST] </s> 
             [INST] Question: {question} 
             Context: {context} 
             Answer: [/INST]
@@ -155,7 +156,8 @@ For vector storage, Chroma is used, coupled with [Qdrant FastEmbed](https://gith
 For a simple user interface, we will use [Streamlit](https://streamlit.io/), a UI framework designed for the fast prototyping of AI/ML applications.
 
 
-```import os
+```python
+import os
 import tempfile
 import streamlit as st
 from streamlit_chat import message
