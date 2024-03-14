@@ -13,7 +13,7 @@ Dependencies:
 pip install langchain streamlit streamlit_chat chromadb pypdf fastembed
 ```
 
-Blog post on Medium: https://medium.com/@vndee.huynh/build-your-own-rag-and-run-it-locally-langchain-ollama-streamlit-181d42805895
+Blog post: https://blog.duy-huynh.com/build-your-own-rag-and-run-them-locally/
 
 # A Tutorial On How to Build Your Own RAG and How to Run It Locally: Langchain + Ollama + Streamlit
 With the rise of Large Language Models and their impressive capabilities, many fancy applications are being built on top of giant LLM providers like OpenAI and Anthropic. The myth behind such applications is the RAG framework, which has been thoroughly explained in the following articles:
