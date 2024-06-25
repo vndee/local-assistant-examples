@@ -16,7 +16,7 @@ langchainhub = "^0.1.14"
 chromadb = "^0.4.18"
 streamlit = "^1.29.0"
 watchdog = "^3.0.0"
-
+protobuf = "==3.20.*"
 
 [build-system]
 requires = ["poetry-core"]
