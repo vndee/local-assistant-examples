@@ -6,10 +6,22 @@ authors = ["Duy Huynh <vndee.huynh@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.9"
+python = ">=3.9,<3.9.7 || >3.9.7,<3.13"
 
+
+[tool.poetry.group.simple-rag.dependencies]
+langchain-community = "0.2.17"
+streamlit = "^1.38.0"
+streamlit-chat = "^0.1.1"
+pypdf = "^5.0.0"
+chromadb = "^0.5.7"
+protobuf = "3.20.2"
+fastembed = "^0.3.6"
+
+
+[tool.poetry.group.common.dependencies]
+pre-commit = "^3.8.0"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-

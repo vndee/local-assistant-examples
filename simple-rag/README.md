@@ -1,16 +1,19 @@
-# local-rag-example
+### Simple RAG
 Build your own ChatPDF and run them locally
 
-Dependencies:
-- langchain
-- streamlit
-- streamlit-chat
-- pypdf
-- chromadb
-- fastembed
+Changelog:
+- 2024-09-22 - Debugging and Verbose Mode: Added set_debug(True) and set_verbose(True) for detailed logging.
+- 2024-09-22 - Dynamic LLM Model Selection: The model can now be specified during initialization via the llm_model argument.
+- 2024-09-22 - Updated Prompt Structure: Switched to a structured ChatPromptTemplate with distinct system and human messages.
+- 2024-09-22 - Persistent Vector Store: Implemented a persistent Chroma vector store using persist_directory="chroma_db".
+- 2024-09-22 - Enhanced Retriever: Adjusted the retriever’s k to 10 and set score_threshold to 0.0 for broader search results.
+- 2024-09-22 - Refactored Initialization: Streamlined the setup of vector_store, retriever, and chain in the ask method.
+- 2024-09-22 - Improved Document Ingestion: Simplified ingestion by focusing on document splitting and vector store creation.
+- 2024-09-22 - State Persistence Fix: Resolved issues with vector store reloading between user queries.
 
+To install dependencies, run the following command:
 ```bash
-pip install langchain streamlit streamlit_chat chromadb pypdf fastembed
+pip install -r requirements.txt
 ```
 
 Blog post: https://blog.duy-huynh.com/build-your-own-rag-and-run-them-locally/
@@ -43,7 +46,7 @@ We will build an application that is something similar to [ChatPDF](https://www.
 
 Okay, let’s start setting it up.
 
---- 
+---
 
 ## Setup Ollama
 
@@ -91,11 +94,11 @@ class ChatPDF:
         self.text_splitter = RecursiveCharacterTextSplitter(chunk_size=1024, chunk_overlap=100)
         self.prompt = PromptTemplate.from_template(
             """
-            <s> [INST] You are an assistant for question-answering tasks. Use the following pieces of retrieved context 
+            <s> [INST] You are an assistant for question-answering tasks. Use the following pieces of retrieved context
             to answer the question. If you don't know the answer, just say that you don't know. Use three sentences
-             maximum and keep the answer concise. [/INST] </s> 
-            [INST] Question: {question} 
-            Context: {context} 
+             maximum and keep the answer concise. [/INST] </s>
+            [INST] Question: {question}
+            Context: {context}
             Answer: [/INST]
             """
         )
@@ -130,7 +133,7 @@ class ChatPDF:
         self.retriever = None
         self.chain = None
 ```
-        
+
 The prompt is sourced from the Langchain hub: [Langchain RAG Prompt for Mistral](https://smith.langchain.com/hub/rlm/rag-prompt-mistral). This prompt has been tested and downloaded thousands of times, serving as a reliable resource for learning about LLM prompting techniques.
 
 

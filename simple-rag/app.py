@@ -1,5 +1,6 @@
 #!/bin/env python3
 import os
+import time
 import tempfile
 import streamlit as st
 from streamlit_chat import message
@@ -16,9 +17,12 @@ def display_messages():
 
 
 def process_input():
-    if st.session_state["user_input"] and len(st.session_state["user_input"].strip()) > 0:
+    if (
+        st.session_state["user_input"]
+        and len(st.session_state["user_input"].strip()) > 0
+    ):
         user_text = st.session_state["user_input"].strip()
-        with st.session_state["thinking_spinner"], st.spinner(f"Thinking"):
+        with st.session_state["thinking_spinner"], st.spinner("Thinking"):
             agent_text = st.session_state["assistant"].ask(user_text)
 
         st.session_state["messages"].append((user_text, True))
@@ -35,8 +39,19 @@ def read_and_save_file():
             tf.write(file.getbuffer())
             file_path = tf.name
 
-        with st.session_state["ingestion_spinner"], st.spinner(f"Ingesting {file.name}"):
+        with st.session_state["ingestion_spinner"], st.spinner(
+            f"Ingesting {file.name}"
+        ):
+            t0 = time.time()
             st.session_state["assistant"].ingest(file_path)
+            t1 = time.time()
+
+        st.session_state["messages"].append(
+            (
+                f"Ingested {file.name} in {t1 - t0:.2f} seconds",
+                False,
+            )
+        )
         os.remove(file_path)
 
 
