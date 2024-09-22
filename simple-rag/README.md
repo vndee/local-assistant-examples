@@ -1,7 +1,7 @@
 ### Simple RAG
 Build your own ChatPDF and run them locally
 
-Changelog:
+**Changelog**:
 - 2024-09-22 - Debugging and Verbose Mode: Added set_debug(True) and set_verbose(True) for detailed logging.
 - 2024-09-22 - Dynamic LLM Model Selection: The model can now be specified during initialization via the llm_model argument.
 - 2024-09-22 - Updated Prompt Structure: Switched to a structured ChatPromptTemplate with distinct system and human messages.
