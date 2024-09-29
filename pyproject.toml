@@ -35,6 +35,7 @@ matplotlib = "^3.9.2"
 networkx = "^3.3"
 pydot = "^3.0.2"
 pygraphviz = "^1.13"
+beautifulsoup4 = "^4.12.3"
 
 [build-system]
 requires = ["poetry-core"]
