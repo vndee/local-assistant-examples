@@ -6,7 +6,8 @@ authors = ["Duy Huynh <vndee.huynh@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.9.7 || >3.9.7,<3.13"
+python = ">=3.10,<3.13"
+openai = "^1.50.2"
 
 
 [tool.poetry.group.simple-rag.dependencies]
@@ -21,6 +22,19 @@ fastembed = "^0.3.6"
 
 [tool.poetry.group.common.dependencies]
 pre-commit = "^3.8.0"
+
+
+[tool.poetry.group.e2e-talking-assistant.dependencies]
+moshi = "^0.1.0"
+
+
+[tool.poetry.group.llm-website-scraper.dependencies]
+playwright = "^1.47.0"
+graphviz = "^0.20.3"
+matplotlib = "^3.9.2"
+networkx = "^3.3"
+pydot = "^3.0.2"
+pygraphviz = "^1.13"
 
 [build-system]
 requires = ["poetry-core"]
