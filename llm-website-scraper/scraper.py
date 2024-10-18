@@ -1,3 +1,5 @@
+import io
+import base64
 from collections import deque
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin
@@ -5,6 +7,7 @@ from typing import Literal, List, Dict
 from playwright.sync_api import sync_playwright, Page, Error
 from langchain_community.chat_models import ChatOllama, ChatOpenAI, ChatAnthropic
 
+TStrategy = Literal["text", "vision"]
 TLLMProvider = Literal["ollama", "openai", "anthropic"]
 
 
@@ -17,6 +20,7 @@ class ScrapingAssistant:
         llm_provider: TLLMProvider = "openai",
         llm_model: str = "gpt-4o-mini",
         verbose: bool = True,
+        strategy: TStrategy = "text",
     ):
         """
         Intelligent assistant for scraping websites using BFS.
@@ -25,16 +29,28 @@ class ScrapingAssistant:
         :param max_depth: The maximum depth of the scraping.
         :param llm_provider: The LLM provider to use for generating responses.
         :param llm_model: The LLM model to use for generating responses.
-        :param verbose: Whether to log detailed information.
+        :param verbose: Whether to log detailed information.pip install crawl4ai[sync]
         """
         self.root_url = self.normalize_url(root_url)
         self.max_pages = max_pages
         self.max_depth = max_depth
         self.verbose = verbose
-        self.pages_scraped: List[str] = []
+        self.pages_scraped: List[Dict[str, str]] = []
         self.visited_links: Dict[str, str] = {}
         self.bfs_tree: Dict[str, List[str]] = {}
+        self.strategy = strategy
         self.llm = self.init_llm(llm_provider, llm_model)
+
+        self.browser_args = {
+            "headless": False,
+            "timeout": 0,
+            "args": [
+                "--disable-gpu",
+                "--disable-dev-shm-usage",
+                "--disable-setuid-sandbox",
+                "--no-sandbox",
+            ],
+        }
 
     @staticmethod
     def init_llm(provider: TLLMProvider, model: str):
@@ -54,29 +70,39 @@ class ScrapingAssistant:
         return f"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path.rstrip('/')}"
 
     @staticmethod
-    def extract_content(page: Page) -> str:
+    def extract_content_from_html(page: Page) -> Dict[str, str]:
         """Extracts the main text content from the page."""
         html_content = page.content()
-        soup = BeautifulSoup(html_content, 'html.parser')
+        soup = BeautifulSoup(html_content, "html.parser")
 
         # Remove script, style, and navigation elements
-        for element in soup(['script', 'style', 'nav', 'footer', 'noscript']):
+        for element in soup(["script", "style", "nav", "footer", "noscript"]):
             element.decompose()
 
-        if soup.find('article'):
-            main_content = soup.find('article').get_text(separator=' ', strip=True)
-        elif soup.find('main'):
-            main_content = soup.find('main').get_text(separator=' ', strip=True)
+        if soup.find("article"):
+            main_content = soup.find("article").get_text(separator=" ", strip=True)
+        elif soup.find("main"):
+            main_content = soup.find("main").get_text(separator=" ", strip=True)
         else:
             # Use heuristic to find the largest div
-            divs = soup.find_all('div')
+            divs = soup.find_all("div")
             if divs:
-                main_content = max(divs, key=lambda d: len(d.get_text())).get_text(separator=' ', strip=True)
+                main_content = max(divs, key=lambda d: len(d.get_text())).get_text(
+                    separator=" ", strip=True
+                )
             else:
                 # Fallback to extracting all text
-                main_content = soup.get_text(separator=' ', strip=True)
+                main_content = soup.get_text(separator=" ", strip=True)
 
-        return main_content
+        return {"text": main_content}
+
+    @staticmethod
+    def extract_content_from_screenshot(page: Page) -> Dict[str, str]:
+        """Extracts the main text content from the page."""
+        screenshot = page.screenshot()
+        # convert the screenshot to base64
+        screenshot = base64.b64encode(io.BytesIO(screenshot).read()).decode("utf-8")
+        return {"screenshot": screenshot}
 
     @staticmethod
     def extract_links(page: Page, current_url: str) -> List[str]:
@@ -96,7 +122,7 @@ class ScrapingAssistant:
     def run(self):
         """Runs the scraping assistant using BFS."""
         with sync_playwright() as pw:
-            browser = pw.chromium.launch(headless=True)
+            browser = pw.chromium.launch(**self.browser_args)
             page = browser.new_page()
 
             self.bfs(page, self.root_url)
@@ -119,9 +145,15 @@ class ScrapingAssistant:
             normalized_url = self.normalize_url(current_url)
 
             try:
-                page.goto(normalized_url)
-                content = self.extract_content(page)
-                self.pages_scraped.append(content)
+                page.goto(normalized_url, timeout=0)
+                if self.strategy == "text":
+                    extracted_content = self.extract_content_from_html(page)
+                elif self.strategy == "vision":
+                    extracted_content = self.extract_content_from_screenshot(page)
+                else:
+                    raise ValueError("Invalid strategy")
+
+                self.pages_scraped.append(extracted_content)
                 self.visited_links[normalized_url] = normalized_url
                 if self.verbose:
                     print(f"Scraped {normalized_url} at depth {current_depth}")
@@ -171,9 +203,10 @@ class ScrapingAssistant:
 
 if __name__ == "__main__":
     assistant = ScrapingAssistant(
-        root_url="https://substack.com/home/post/p-149271488?source=queue",
+        root_url="https://vnexpress.net/israel-ha-sat-thu-linh-hezbollah-nhu-the-nao-4798374.html",
         max_depth=3,
         max_pages=1,
+        strategy="vision",
     )
     assistant.run()
     assistant.print_bfs_tree(is_scraped_only=True)
